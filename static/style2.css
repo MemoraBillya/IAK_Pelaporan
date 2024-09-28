@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                background: #f6f5f7;
+                display: flex;
+                justify-content: flex-start;
+                font-family: 'Montserrat', sans-serif;
+                height: 100vh;
+                margin: 0;
+            }
+
+            /* Sidebar styling */
+            .sidebar {
+                height: 100vh;
+                width: 250px;
+                background: linear-gradient(to right, #FF4B2B, #FF416C);
+                padding: 30px 20px;
+                position: fixed;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .sidebar h2 {
+                color: #ffffff;
+                margin-bottom: 40px;
+                font-weight: bold;
+            }
+
+            .sidebar a {
+                text-decoration: none;
+                font-size: 18px;
+                color: #ffffff;
+                display: block;
+                padding: 10px 15px;
+                width: 100%;
+                text-align: left;
+                border-radius: 10px;
+                transition: background-color 0.3s ease;
+                margin: 10px 0;
+            }
+
+            .sidebar a:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+
+            .sidebar a i {
+                margin-right: 10px;
+            }
+
+            /* Main content styling */
+            .main-content {
+            margin-left: 250px; /* Sesuaikan dengan lebar sidebar */
+            padding: 20px;
+            width: calc(100% - 250px); /* Kurangi lebar sidebar */
+            }
+
+
+            .main-content h1 {
+                font-weight: bold;
+                text-align: left;
+                color: #FF4B2B;
+            }
+
+            .main-content p {
+                font-size: 16px;
+                color: #333;
+                line-height: 1.5;
+                text-align: left;
+            }

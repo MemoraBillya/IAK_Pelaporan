@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <h2>Pelaporan</h2>
+        <a href="{{ url_for('home') }}"><i class="fas fa-house"></i> Home</a>
+        <a href="{{ url_for('supplier') }}"><i class="fas fa-truck"></i> Supplier</a>
+        <a href="{{ url_for('distributor') }}"><i class="fas fa-shipping-fast"></i> Distributor</a>
+        <a href="{{ url_for('retail') }}"><i class="fas fa-store"></i> Retail</a>
+        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        {% block content %}
+        <!-- Konten dinamis -->
+        {% endblock %}
+    </div>
+</body>
+</html>
