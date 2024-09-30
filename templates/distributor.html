@@ -5,4 +5,25 @@
 {% block content %}
     <h1>Distributor</h1>
     <p>Laporan mengenai segala informasi dan aktivitas distributor.</p>
+
+    {% if distributor_data %}
+    <table border="1">
+        <tr>
+            <th>Kota Asal</th>
+            <th>Kota Tujuan</th>
+            <th>Harga Ongkir per Kg</th>
+            <th>Lama Pengiriman</th>
+        </tr>
+        {% for distributor in distributor_data %}
+        <tr>
+            <td>{{ distributor.kota_asal }}</td>
+            <td>{{ distributor.kota_tujuan }}</td>
+            <td>{{ distributor.harga_ongkir_per_kg }}</td>
+            <td>{{ distributor.lama_pengiriman }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>Tidak ada data distributor yang tersedia.</p>
+    {% endif %}
 {% endblock %}

@@ -5,4 +5,130 @@
 {% block content %}
     <h1>Retail</h1>
     <p>Laporan mengenai segala informasi dan aktivitas retail.</p>
+
+    <canvas id="pieChartToko1" width="400" height="200"></canvas>
+    <h2>Pie Chart Toko 1</h2>
+    <canvas id="pieChartToko2" width="400" height="200"></canvas>
+    <h2>Pie Chart Toko 2</h2>
+    <canvas id="pieChartToko3" width="400" height="200"></canvas>
+    <h2>Pie Chart Toko 3</h2>
+    
+    <canvas id="barChartTotal" width="400" height="200"></canvas>
+    <h2>Total Pemasukan</h2>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx1 = document.getElementById('pieChartToko1').getContext('2d');
+        const ctx2 = document.getElementById('pieChartToko2').getContext('2d');
+        const ctx3 = document.getElementById('pieChartToko3').getContext('2d');
+        const ctxBar = document.getElementById('barChartTotal').getContext('2d');
+
+        const labelsToko1 = {{ labels_toko1|tojson }};
+        const quantitiesToko1 = {{ quantities_toko1|tojson }};
+        const totalPricesToko1 = {{ total_prices_toko1|tojson }};
+        
+        const labelsToko2 = {{ labels_toko2|tojson }};
+        const quantitiesToko2 = {{ quantities_toko2|tojson }};
+        const totalPricesToko2 = {{ total_prices_toko2|tojson }};
+        
+        const labelsToko3 = {{ labels_toko3|tojson }};
+        const quantitiesToko3 = {{ quantities_toko3|tojson }};
+        const totalPricesToko3 = {{ total_prices_toko3|tojson }};
+
+        const totalPemasukan = [{{ total_pemasukan_toko1 }}, {{ total_pemasukan_toko2 }}, {{ total_pemasukan_toko3 }}];
+        const tokoNames = ["Toko 1", "Toko 2", "Toko 3"];
+
+        const pieChartToko1 = new Chart(ctx1, {
+            type: 'pie',
+            data: {
+                labels: labelsToko1,
+                datasets: [{
+                    data: quantitiesToko1,
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                }]
+            },
+            options: {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                const productName = tooltipItem.label || '';
+                                const totalPrice = totalPricesToko1[tooltipItem.dataIndex] || 0;
+                                return `${productName}: ${tooltipItem.raw} (Total Price: ${totalPrice})`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const pieChartToko2 = new Chart(ctx2, {
+            type: 'pie',
+            data: {
+                labels: labelsToko2,
+                datasets: [{
+                    data: quantitiesToko2,
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                }]
+            },
+            options: {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                const productName = tooltipItem.label || '';
+                                const totalPrice = totalPricesToko2[tooltipItem.dataIndex] || 0;
+                                return `${productName}: ${tooltipItem.raw} (Total Price: ${totalPrice})`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const pieChartToko3 = new Chart(ctx3, {
+            type: 'pie',
+            data: {
+                labels: labelsToko3,
+                datasets: [{
+                    data: quantitiesToko3,
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                }]
+            },
+            options: {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                const productName = tooltipItem.label || '';
+                                const totalPrice = totalPricesToko3[tooltipItem.dataIndex] || 0;
+                                return `${productName}: ${tooltipItem.raw} (Total Price: ${totalPrice})`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const barChartTotal = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: tokoNames,
+                datasets: [{
+                    label: 'Total Pemasukan',
+                    data: totalPemasukan,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 {% endblock %}
