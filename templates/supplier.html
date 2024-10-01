@@ -1,9 +1,66 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Supplier Dashboard{% endblock %}
 
 {% block content %}
     <h1>Supplier</h1>
-    <p>Laporan mengenai segala informasi dan aktivitas supplier.</p>
+    <p>Produk dari berbagai supplier.</p>
+
+    <form method="POST" action="{{ url_for('supplier') }}">
+        <label for="supplier">Pilih Supplier:</label>
+        <select name="supplier" id="supplier" onchange="this.form.submit()">
+            <option value="Supplierman" {% if selected_supplier == "Supplierman" %}selected{% endif %}>Supplierman</option>
+            <option value="Supplier Ban" {% if selected_supplier == "Supplier Ban" %}selected{% endif %}>Supplier Ban</option>
+            <option value="Supplier 3" {% if selected_supplier == "Supplier 3" %}selected{% endif %}>Supplier 3</option>
+        </select>
+    </form>
+
+    <h2>{{ selected_supplier }}</h2>
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card">
+            {% if selected_supplier == 'Supplierman' %}
+                <img src="{{ product.linkgambar }}" alt="{{ product.nama_produk }}" width="200">
+            {% elif selected_supplier == 'Supplier Ban' %}
+                <img src="{{ product.link_gambar_barang }}" alt="{{ product.nama_produk }}" width="200">
+            {% elif selected_supplier == 'Supplier 3' %}
+                <img src="{{ product.link_gambar }}" alt="{{ product.nama_produk }}" width="200">
+            {% endif %}
+            <h3>{{ product.nama_produk }}</h3>
+            <p>Harga: Rp {{ product.harga }}</p>
+            <p>Stok: {{ product.stok }}</p>
+            <p>Berat: {{ product.berat }} kg</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <style>
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+            transition: transform 0.2s ease-in-out;
+        }
+        .product-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .product-card img {
+            max-width: 100%;
+            height: auto;
+        }
+        select {
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
 {% endblock %}
-    

@@ -7,7 +7,7 @@ import requests
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
-cred = credentials.Certificate("x.json")
+cred = credentials.Certificate("iak-pelaporan-969de-firebase-adminsdk-xd4vq-a70f78569d.json")
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://iak-pelaporan-969de-default-rtdb.asia-southeast1.firebasedatabase.app/'
 })
@@ -32,7 +32,7 @@ def fetch_distributor_data():
                 if not any(
                     existing['kota_asal'] == distributor['kota_asal'] and
                     existing['kota_tujuan'] == distributor['kota_tujuan'] and
-                    existing['harga_ongkir_per_kg'] == distributor['harga_ongkir_per_kg'] 
+                    existing['harga_ongkir_per_kg'] == distributor['harga_ongkir_per_kg']
                     for existing in existing_data.values()
                 ):
                     result = db.reference('/distributor_data').push(distributor)
@@ -46,6 +46,92 @@ def fetch_distributor_data():
 
     except requests.exceptions.RequestException as e:
         print(f'Error fetching data: {e}')
+
+def fetch_product_data():
+    api_url = "https://suplierman.pythonanywhere.com/products/api/products"
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()
+        product_data = response.json()
+
+        if product_data:
+            print("Data dari API Produk:", product_data)
+            existing_data = db.reference('/products').get() or {}
+
+            # Simpan data ke Firebase jika tidak ada data yang sama
+            for product in product_data:
+                if not any(
+                    existing['id_produk'] == product['id_produk'] for existing in existing_data.values()
+                ):
+                    result = db.reference('/products').push(product)
+                    print(f'Produk berhasil disimpan dengan key: {result.key}')
+                else:
+                    print(f'Produk sudah ada: {product}')
+
+            print('Data produk berhasil diambil dan disimpan ke Firebase')
+        else:
+            print('Tidak ada data produk yang diterima dari API')
+
+    except requests.exceptions.RequestException as e:
+        print(f'Error fetching product data: {e}')
+
+def fetch_supplier_ban_data():
+    api_url = "http://167.99.238.114:8000/api/products"
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()
+        product_data = response.json()
+
+        if product_data:
+            print("Data dari API Supplier Ban:", product_data)
+            existing_data = db.reference('/supplier_ban_products').get() or {}
+
+            # Simpan data ke Firebase jika tidak ada data yang sama
+            for product in product_data:
+                if not any(
+                    existing['id_produk'] == product['id_produk'] for existing in existing_data.values()
+                ):
+                    result = db.reference('/supplier_ban_products').push(product)
+                    print(f'Produk Supplier Ban berhasil disimpan dengan key: {result.key}')
+                else:
+                    print(f'Produk sudah ada: {product}')
+
+            print('Data produk Supplier Ban berhasil diambil dan disimpan ke Firebase')
+        else:
+            print('Tidak ada data produk yang diterima dari API Supplier Ban')
+
+    except requests.exceptions.RequestException as e:
+        print(f'Error fetching product data from Supplier Ban: {e}')
+
+def fetch_supplier3_data():
+    api_url = "https://supplier3.pythonanywhere.com/api/products"
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()
+        product_data = response.json()
+
+        if product_data:
+            print("Data dari API Supplier 3:", product_data)
+            existing_data = db.reference('/supplier3_products').get() or {}
+
+            # Simpan data ke Firebase jika tidak ada data yang sama
+            for product in product_data:
+                if not any(
+                    existing['id_produk'] == product['id_produk'] for existing in existing_data.values()
+                ):
+                    result = db.reference('/supplier3_products').push(product)
+                    print(f'Produk Supplier 3 berhasil disimpan dengan key: {result.key}')
+                else:
+                    print(f'Produk sudah ada: {product}')
+
+            print('Data produk Supplier 3 berhasil diambil dan disimpan ke Firebase')
+        else:
+            print('Tidak ada data produk yang diterima dari API Supplier 3')
+
+    except requests.exceptions.RequestException as e:
+        print(f'Error fetching product data from Supplier 3: {e}')
+
+
 
 def add_dummy_retail_data_1():
     # Dummy data for the first retail store
@@ -73,7 +159,7 @@ def add_dummy_retail_data_1():
             "user": "nyk"
         }
     }
-    
+
     # Save to Firebase
     db.reference('/retail_transactions/store_1').set(dummy_data_1)
     print('Data dummy retail 1 berhasil ditambahkan!')
@@ -202,11 +288,33 @@ def logout():
     return redirect(url_for('login'))
 
 # Route untuk halaman Supplier
-@app.route('/supplier')
+@app.route('/supplier', methods=['GET', 'POST'])
 def supplier():
     if 'loggedin' in session:
-        return render_template('supplier.html')
+        # Default supplier is 'Supplierman'
+        selected_supplier = request.form.get('supplier', 'Supplierman')
+
+        if selected_supplier == 'Supplierman':
+            fetch_product_data()
+            product_data = db.reference('/products').get()
+        elif selected_supplier == 'Supplier Ban':
+            fetch_supplier_ban_data()
+            product_data = db.reference('/supplier_ban_products').get()
+        elif selected_supplier == 'Supplier 3':
+            fetch_supplier3_data()
+            product_data = db.reference('/supplier3_products').get()
+        else:
+            product_data = []
+
+        # Pastikan product_data bukan None dan konversi ke list
+        if product_data is None:
+            product_data = []  # Kembalikan list kosong jika tidak ada data
+        else:
+            product_data = list(product_data.values())
+
+        return render_template('supplier.html', products=product_data, selected_supplier=selected_supplier)
     return redirect(url_for('login'))
+
 
 # Route untuk halaman Distributor
 @app.route('/distributor')
@@ -221,7 +329,7 @@ def distributor():
         else:
             # Konversi dict menjadi list
             distributor_data = list(distributor_data.values())
-        
+
         return render_template('distributor.html', distributor_data=distributor_data)
     return redirect(url_for('login'))
 
@@ -229,6 +337,9 @@ def distributor():
 @app.route('/retail')
 def retail():
     if 'loggedin' in session:
+        add_dummy_retail_data_1()
+        add_dummy_retail_data_2()
+        add_dummy_retail_data_3()
         # Mengambil data transaksi dari Firebase
         retail_data = db.reference('/retail_transactions').get() or {}
 
@@ -270,18 +381,18 @@ def retail():
             total_prices[store_id] = [summary['total_price'] for summary in product_summary[store_id].values()]
 
         return render_template(
-            'retail.html', 
-            labels_toko1=labels["store_1"], 
-            quantities_toko1=quantities["store_1"], 
+            'retail.html',
+            labels_toko1=labels["store_1"],
+            quantities_toko1=quantities["store_1"],
             total_prices_toko1=total_prices["store_1"],
-            labels_toko2=labels["store_2"], 
-            quantities_toko2=quantities["store_2"], 
+            labels_toko2=labels["store_2"],
+            quantities_toko2=quantities["store_2"],
             total_prices_toko2=total_prices["store_2"],
-            labels_toko3=labels["store_3"], 
-            quantities_toko3=quantities["store_3"], 
+            labels_toko3=labels["store_3"],
+            quantities_toko3=quantities["store_3"],
             total_prices_toko3=total_prices["store_3"],
-            total_pemasukan_toko1=total_revenue["store_1"], 
-            total_pemasukan_toko2=total_revenue["store_2"], 
+            total_pemasukan_toko1=total_revenue["store_1"],
+            total_pemasukan_toko2=total_revenue["store_2"],
             total_pemasukan_toko3=total_revenue["store_3"]
         )
     return redirect(url_for('login'))
@@ -289,8 +400,4 @@ def retail():
 
 # Menjalankan aplikasi Flask dan mengambil data distributor saat dimulai
 if __name__ == '__main__':
-    fetch_distributor_data()
-    add_dummy_retail_data_1()
-    add_dummy_retail_data_2()
-    add_dummy_retail_data_3()  # Memanggil fungsi untuk mengambil data distributor
     app.run(debug=True)
