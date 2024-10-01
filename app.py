@@ -7,7 +7,7 @@ import requests
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
-cred = credentials.Certificate("iak-pelaporan-969de-firebase-adminsdk-xd4vq-1f8efe3f46.json")
+cred = credentials.Certificate("x.json")
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://iak-pelaporan-969de-default-rtdb.asia-southeast1.firebasedatabase.app/'
 })
