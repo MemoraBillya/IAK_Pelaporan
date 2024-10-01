@@ -1,9 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Supplier Dashboard{% endblock %}
 
 {% block content %}
     <h1>Supplier</h1>
-    <p>Laporan mengenai segala informasi dan aktivitas supplier.</p>
+    <p>Produk masing-masing supplier ontelku.</p>
+
+    <h2>Supplierman</h2>
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <img src="{{ product.linkgambar }}" alt="{{ product.nama_produk }}" width="200">
+            <h3>{{ product.nama_produk }}</h3>
+            <p>Harga: Rp {{ product.harga }}</p>
+            <p>Stok: {{ product.stok }}</p>
+            <p>Berat: {{ product.berat }} kg</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <style>
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+        .product-card img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
 {% endblock %}
-    

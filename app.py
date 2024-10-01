@@ -7,7 +7,7 @@ import requests
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
-cred = credentials.Certificate("iak-pelaporan-969de-firebase-adminsdk-xd4vq-1f8efe3f46.json")
+cred = credentials.Certificate("iak-pelaporan-969de-firebase-adminsdk-xd4vq-f97031a564.json")
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://iak-pelaporan-969de-default-rtdb.asia-southeast1.firebasedatabase.app/'
 })
@@ -46,6 +46,35 @@ def fetch_distributor_data():
 
     except requests.exceptions.RequestException as e:
         print(f'Error fetching data: {e}')
+
+def fetch_product_data():
+    api_url = "https://suplierman.pythonanywhere.com/products/api/products"
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()
+        product_data = response.json()
+
+        if product_data:
+            print("Data dari API Produk:", product_data)
+            existing_data = db.reference('/products').get() or {}
+
+            # Simpan data ke Firebase jika tidak ada data yang sama
+            for product in product_data:
+                if not any(
+                    existing['id_produk'] == product['id_produk'] for existing in existing_data.values()
+                ):
+                    result = db.reference('/products').push(product)
+                    print(f'Produk berhasil disimpan dengan key: {result.key}')
+                else:
+                    print(f'Produk sudah ada: {product}')
+
+            print('Data produk berhasil diambil dan disimpan ke Firebase')
+        else:
+            print('Tidak ada data produk yang diterima dari API')
+
+    except requests.exceptions.RequestException as e:
+        print(f'Error fetching product data: {e}')
+
 
 def add_dummy_retail_data_1():
     # Dummy data for the first retail store
@@ -205,7 +234,16 @@ def logout():
 @app.route('/supplier')
 def supplier():
     if 'loggedin' in session:
-        return render_template('supplier.html')
+        fetch_product_data()  # Memanggil fungsi untuk mengambil data produk
+        product_data = db.reference('/products').get()
+
+        # Pastikan product_data bukan None dan konversi ke list
+        if product_data is None:
+            product_data = []  # Kembalikan list kosong jika tidak ada data
+        else:
+            product_data = list(product_data.values())
+        
+        return render_template('supplier.html', products=product_data)
     return redirect(url_for('login'))
 
 # Route untuk halaman Distributor
@@ -229,6 +267,9 @@ def distributor():
 @app.route('/retail')
 def retail():
     if 'loggedin' in session:
+        add_dummy_retail_data_1()
+        add_dummy_retail_data_2()
+        add_dummy_retail_data_3()
         # Mengambil data transaksi dari Firebase
         retail_data = db.reference('/retail_transactions').get() or {}
 
@@ -289,8 +330,4 @@ def retail():
 
 # Menjalankan aplikasi Flask dan mengambil data distributor saat dimulai
 if __name__ == '__main__':
-    fetch_distributor_data()
-    add_dummy_retail_data_1()
-    add_dummy_retail_data_2()
-    add_dummy_retail_data_3()  # Memanggil fungsi untuk mengambil data distributor
     app.run(debug=True)
